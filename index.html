@@ -6,107 +6,41 @@
 <title>Kiosk App</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background:#f2f2f2;
-  margin:10px;
-}
+body { font-family: Arial, sans-serif; background:#f2f2f2; margin:10px; }
 h1,h2,h3 { text-align:center; }
+.section { background:#fff; padding:10px; margin:10px auto; border-radius:8px; max-width:1000px; }
 
-.section {
-  background:#fff;
-  padding:10px;
-  margin:10px auto;
-  border-radius:8px;
-  max-width:1100px;
-}
+.category { display:inline-block; width:200px; margin:5px; padding:5px; border-radius:6px; vertical-align:top; }
 
-.category {
-  display:inline-block;
-  width:220px;
-  vertical-align:top;
-  margin:5px;
-  padding:5px;
-  border-radius:6px;
-}
+button { width:100%; padding:8px; margin:4px 0; border:none; border-radius:5px; font-weight:bold; cursor:pointer; color:#fff; }
 
-button {
-  width:100%;
-  margin:4px 0;
-  padding:8px;
-  border:none;
-  border-radius:5px;
-  color:#fff;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-input, select {
-  width:95%;
-  padding:6px;
-  margin:4px 0;
-}
-
+input,select { width:95%; padding:6px; margin:4px 0; }
 ul { list-style:none; padding:0; }
 
-/* Kategorienfarben */
+/* Farben */
+.category.drinks { background:#d6ecff; }
+.category.coffee { background:#f5e0c3; }
+.category.grill { background:#ffd6d6; }
+.category.bakery { background:#fff2cc; }
+.category.sweets { background:#f0d6ff; }
+.category.misc { background:#e0e0e0; }
+
 .drinks button { background:#3498db; }
 .coffee button { background:#a97142; }
 .grill button { background:#e74c3c; }
 .bakery button { background:#f1c40f; color:#000; }
 .sweets button { background:#9b59b6; }
-/* ===== KATEGORIE-HINTERGRÜNDE ===== */
-.category.drinks {
-  background: #d6ecff;   /* hellblau */
-}
+.misc button { background:#7f8c8d; }
 
-.category.coffee {
-  background: #f5e0c3;   /* kaffeebraun */
-}
-
-.category.grill {
-  background: #ffd6d6;   /* hellrot */
-}
-
-.category.bakery {
-  background: #fff2cc;   /* gelb */
-}
-
-.category.sweets {
-  background: #f0d6ff;   /* lila */
-}
-
-.section.admin {
-  background: #e0e0e0;   /* grau */
-}
-
-/* Warenkorb */
 .cart-btn { background:#2ecc71; }
-.cart-btn:hover { background:#27ae60; }
-
-/* Ausgaben */
-.expense-section { background:#ffe6e6; border:2px solid #e74c3c; }
 .expense-btn { background:#e74c3c; }
-.expense-btn:hover { background:#c0392b; }
-
-/* Admin */
 .admin button { background:#7f8c8d; }
-.admin button:hover { background:#636e72; }
-
 </style>
 </head>
 
 <body>
 
 <h1>Kiosk App</h1>
-
-<!-- ================= WARENKORB ================= -->
-<div class="section">
-<h2>Warenkorb</h2>
-<ul id="cart"></ul>
-<p><b>Gesamt:</b> <span id="cartTotal">0.00</span> €</p>
-<button class="cart-btn" onclick="checkout()">Einkauf abschließen</button>
-</div>
 
 <!-- ================= PRODUKTE ================= -->
 <div class="section">
@@ -125,7 +59,7 @@ ul { list-style:none; padding:0; }
 </div>
 
 <div class="category grill" id="cat-grill">
-<h3>Grillgut</h3>
+<h3>Grill</h3>
 <button onclick="addToCart('Würstel',2.5)">Würstel 2,50 €</button>
 <button onclick="addToCart('Steak',5)">Steak 5,00 €</button>
 </div>
@@ -141,54 +75,80 @@ ul { list-style:none; padding:0; }
 <button onclick="addToCart('Schokolade',1.2)">Schokolade 1,20 €</button>
 <button onclick="addToCart('Gummibärchen',1)">Gummibärchen 1,00 €</button>
 </div>
+
+<div class="category misc">
+<h3>Sonstiges</h3>
+<input id="miscName" placeholder="Bezeichnung">
+<input id="miscPrice" type="number" step="0.01" placeholder="Preis €">
+<button onclick="addMisc()">Hinzufügen</button>
+</div>
+
+</div>
+
+<!-- ================= WARENKORB ================= -->
+<div class="section">
+<h2>Warenkorb</h2>
+<ul id="cart"></ul>
+<p><b>Gesamt:</b> <span id="cartTotal">0.00</span> €</p>
+<button class="cart-btn" onclick="checkout()">Einkauf abschließen</button>
+<button onclick="clearCart()" style="background:#e74c3c"> Warenkorb leeren</button>
+
+
 </div>
 
 <!-- ================= PRODUKT HINZUFÜGEN ================= -->
 <div class="section admin">
 <h2>Produkt hinzufügen</h2>
-
 <input id="pName" placeholder="Produktname">
 <input id="pPrice" type="number" step="0.01" placeholder="Preis €">
-
 <select id="pCategory">
 <option value="">Kategorie wählen</option>
 <option value="drinks">Getränke</option>
 <option value="coffee">Kaffee & Kuchen</option>
-<option value="grill">Grillgut</option>
+<option value="grill">Grill</option>
 <option value="bakery">Backwaren</option>
 <option value="sweets">Süßigkeiten</option>
 </select>
-
 <button onclick="addNewProduct()">Produkt speichern</button>
 </div>
 
 <!-- ================= AUSGABEN ================= -->
-<div class="section expense-section">
+<div class="section">
 <h2>Ausgaben</h2>
-<input id="expText" placeholder="Wofür war die Ausgabe?">
+<input id="expText" placeholder="Wofür?">
 <input id="expPrice" type="number" step="0.01" placeholder="Betrag €">
 <button class="expense-btn" onclick="addExpense()">Ausgabe hinzufügen</button>
 </div>
 
-<!-- ================= TAGESABSCHLUSS ================= -->
+<!-- ================= KASSE ================= -->
 <div class="section">
-<h2>Tageseinnahmen</h2>
+<h2>Kasse / Tagesabschluss</h2>
+
+<label>Kassenbestand Start (€)</label>
+<input id="cashStartInput" type="number" step="0.01">
+<button onclick="setCashStart()">Kasse übernehmen</button>
+
 <p>Einnahmen: <b><span id="rev">0.00</span> €</b></p>
 <p>Ausgaben: <b><span id="exp">0.00</span> €</b></p>
 <p>Gewinn: <b><span id="gain">0.00</span> €</b></p>
 
-<button onclick="exportCSV()">CSV Tagesabschluss</button>
+<p>Kassenbestand Soll: <b><span id="cashSoll">0.00</span> €</b></p>
+
+<label>Kassenbestand Ist</label>
+<input id="cashEndInput" type="number" step="0.01" oninput="updateTotals()">
+
+<p>Differenz: <b><span id="cashDiff">0.00</span> €</b></p>
+
+<button onclick="exportCSV()">CSV Export</button>
 </div>
 
 <script>
 /* ===== STATE ===== */
 let cart = [];
 let revenue = 0;
-let expenses = 0;
-
-
-let salesLog = [];     // ← NEU: alle Einnahmen einzeln
-let expenseList = []; // ← Ausgaben einzeln
+let cashStart = 0;
+let salesLog = [];
+let expenseList = [];
 
 /* ===== WARENKORB ===== */
 function addToCart(name, price) {
@@ -196,147 +156,176 @@ function addToCart(name, price) {
   renderCart();
 }
 
+function addMisc() {
+  const name = miscName.value.trim() || "Sonstiges";
+  const price = Number(miscPrice.value);
+  if (price <= 0 || isNaN(price)) return;
+  cart.push({ name, price });
+  miscPrice.value = "";
+  renderCart();
+}
+
 function renderCart() {
   const ul = document.getElementById("cart");
-  ul.innerHTML = "";
+  const totalEl = document.getElementById("cartTotal");
+
+  ul.innerHTML = "";          // ✅ DOM leeren
   let sum = 0;
 
-  cart.forEach(i => {
-    sum += i.price;
+  cart.forEach(item => {
+    sum += item.price;
     const li = document.createElement("li");
-    li.textContent = `${i.name} – ${i.price.toFixed(2)} €`;
+    li.textContent = `${item.name} – ${item.price.toFixed(2)} €`;
     ul.appendChild(li);
   });
 
-  document.getElementById("cartTotal").textContent = sum.toFixed(2);
+  totalEl.textContent = sum.toFixed(2);
 }
 
 /* ===== CHECKOUT ===== */
 function checkout() {
   if (cart.length === 0) return;
-  const sum = cart.reduce((s,i)=>s+i.price,0);
-  revenue += sum;
-  cart = [];
+
+  const time = new Date().toLocaleString();
+
+  cart.forEach(item => {
+    revenue += item.price;
+    salesLog.push({
+      time,
+      name: item.name,
+      price: item.price,
+      type: "Einnahme"
+    });
+  });
+
+  // ✅ Warenkorb korrekt leeren
+  cart.length = 0;
+
+  // ✅ UI aktualisieren
   renderCart();
   updateTotals();
 }
 
 /* ===== AUSGABEN ===== */
 function addExpense() {
-  const text = document.getElementById("expText").value.trim();
-  const price = Number(document.getElementById("expPrice").value);
-
-  if (!text || price <= 0 || isNaN(price)) {
-    alert("Bitte Beschreibung und Betrag eingeben");
-    return;
-  }
-
-  expenseList.push({
-    time: new Date().toLocaleString(),
-    name: text,
-    price: price,
-    type: "Ausgabe"
-  });
-
-  document.getElementById("expText").value = "";
-  document.getElementById("expPrice").value = "";
-
+  const text = expText.value.trim();
+  const price = Number(expPrice.value);
+  if (!text || price<=0) return;
+  expenseList.push({time:new Date().toLocaleString(),name:text,price,type:"Ausgabe"});
+  expText.value=""; expPrice.value="";
   updateTotals();
 }
 
+/* ===== KASSE ===== */
+function setCashStart() {
+  cashStart = Number(cashStartInput.value) || 0;
+  updateTotals();
+}
 
-/* ===== TOTALS ===== */
 function updateTotals() {
-  // Einnahmen (bereits beim Checkout addiert)
-  const totalRevenue = revenue;
-
-  // Ausgaben aus der Liste berechnen
   const totalExpenses = expenseList.reduce(
-    (sum, item) => sum + Number(item.price),
+    (sum, e) => sum + e.price,
     0
   );
 
-  // Anzeige aktualisieren
+  const cashSoll = cashStart + revenue - totalExpenses;
+
+  const rawIst = document.getElementById("cashEndInput").value;
+  const cashIst = rawIst === "" ? null : Number(rawIst);
+
   document.getElementById("rev").textContent =
-    totalRevenue.toFixed(2);
+    revenue.toFixed(2);
 
   document.getElementById("exp").textContent =
     totalExpenses.toFixed(2);
 
   document.getElementById("gain").textContent =
-    (totalRevenue - totalExpenses).toFixed(2);
+    (revenue - totalExpenses).toFixed(2);
+
+  document.getElementById("cashSoll").textContent =
+    cashSoll.toFixed(2);
+
+  document.getElementById("cashDiff").textContent =
+    cashIst === null
+      ? "0.00"
+      : (cashIst - cashSoll).toFixed(2);
+}
+function clearCart() {
+  if (cart.length === 0) {
+    alert("Warenkorb ist bereits leer");
+    return;
+  }
+
+  if (!confirm("Warenkorb wirklich leeren?")) return;
+
+  cart = [];
+  renderCart();
 }
 
 
 /* ===== PRODUKT HINZUFÜGEN ===== */
 function addNewProduct() {
-  const name = pName.value.trim();
-  const price = Number(pPrice.value);
-  const cat = pCategory.value;
+  const name=pName.value.trim();
+  const price=Number(pPrice.value);
+  const cat=pCategory.value;
+  if(!name||price<=0||!cat) return;
 
-  if (!name || price <= 0 || !cat) {
-    alert("Alle Felder ausfüllen");
-    return;
-  }
+  const c=document.getElementById("cat-"+cat);
+  const row=document.createElement("div");
+  row.style.display="flex"; row.style.gap="5px";
 
-  const container = document.getElementById("cat-" + cat);
+  const b=document.createElement("button");
+  b.textContent=`${name} ${price.toFixed(2)} €`;
+  b.onclick=()=>addToCart(name,price);
 
-  const wrapper = document.createElement("div");
-  wrapper.style.display = "flex";
-  wrapper.style.gap = "5px";
+  const d=document.createElement("button");
+  d.textContent="❌"; d.style.width="40px"; d.style.background="#e74c3c";
+  d.onclick=()=>row.remove();
 
-  const btn = document.createElement("button");
-  btn.textContent = `${name} ${price.toFixed(2)} €`;
-  btn.style.flex = "1";
-  btn.onclick = () => addToCart(name, price);
-
-  // 👉 KATEGORIE-FARBE ÜBER CSS
-  btn.classList.add(cat);
-
-  const del = document.createElement("button");
-  del.textContent = "❌";
-  del.style.width = "40px";
-  del.style.background = "#e74c3c";
-
-  del.onclick = () => {
-    if (!confirm(`Produkt "${name}" wirklich löschen?`)) return;
-    wrapper.remove();
-  };
-
-  wrapper.appendChild(btn);
-  wrapper.appendChild(del);
-  container.appendChild(wrapper);
-
-  pName.value = "";
-  pPrice.value = "";
-  pCategory.value = "";
+  row.appendChild(b); row.appendChild(d); c.appendChild(row);
+  pName.value=pPrice.value=pCategory.value="";
 }
-
 
 /* ===== CSV ===== */
 function exportCSV() {
-  const rows = [];
+
+  const totalExpenses = expenseList.reduce(
+    (sum, e) => sum + e.price, 0
+  );
+
+  const cashSoll = cashStart + revenue - totalExpenses;
+
+  const cashIst = Number(
+    document.getElementById("cashEndInput").value
+  ) || 0;
+
+  const diff = cashIst - cashSoll;
+
+  let rows = [];
   rows.push("Datum/Uhrzeit;Typ;Bezeichnung;Betrag");
 
-  // Einnahmen
+  /* ===== EINNAHMEN ===== */
   salesLog.forEach(e => {
     rows.push(
-      `"${e.time}";"${e.type}";"${e.name}";"${e.price.toFixed(2).replace(".", ",")}"`
+      `"${e.time}";"Einnahme";"${e.name}";"${e.price.toFixed(2).replace(".", ",")}"`
     );
   });
 
-  // Ausgaben
+  /* ===== AUSGABEN ===== */
   expenseList.forEach(e => {
     rows.push(
-      `"${e.time}";"${e.type}";"${e.name}";"${e.price.toFixed(2).replace(".", ",")}"`
+      `"${e.time}";"Ausgabe";"${e.name}";"${e.price.toFixed(2).replace(".", ",")}"`
     );
   });
 
-  // Summen
+  /* ===== ZUSAMMENFASSUNG ===== */
   rows.push("");
+  rows.push(`"";"Kassenstart";"";"${cashStart.toFixed(2).replace(".", ",")}"`);
   rows.push(`"";"Summe Einnahmen";"";"${revenue.toFixed(2).replace(".", ",")}"`);
-  rows.push(`"";"Summe Ausgaben";"";"${expenses.toFixed(2).replace(".", ",")}"`);
-  rows.push(`"";"Gewinn";"";"${(revenue - expenses).toFixed(2).replace(".", ",")}"`);
+  rows.push(`"";"Summe Ausgaben";"";"${totalExpenses.toFixed(2).replace(".", ",")}"`);
+  rows.push(`"";"Kassenbestand Soll";"";"${cashSoll.toFixed(2).replace(".", ",")}"`);
+  rows.push(`"";"Kassenbestand Ist";"";"${cashIst.toFixed(2).replace(".", ",")}"`);
+  rows.push(`"";"Differenz";"";"${diff.toFixed(2).replace(".", ",")}"`);
 
   const blob = new Blob(
     ["\uFEFF" + rows.join("\n")],
@@ -345,10 +334,9 @@ function exportCSV() {
 
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "kiosk_auswertung.csv";
+  a.download = "kiosk_tagesabschluss.csv";
   a.click();
 }
-
 </script>
 
 </body>
