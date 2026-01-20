@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiosk App</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f2f2f2;
+  margin:10px;
+}
+h1,h2,h3 { text-align:center; }
+
+.section {
+  background:#fff;
+  padding:10px;
+  margin:10px auto;
+  border-radius:8px;
+  max-width:1100px;
+}
+
+.category {
+  display:inline-block;
+  width:220px;
+  vertical-align:top;
+  margin:5px;
+  padding:5px;
+  border-radius:6px;
+}
+
+button {
+  width:100%;
+  margin:4px 0;
+  padding:8px;
+  border:none;
+  border-radius:5px;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+input, select {
+  width:95%;
+  padding:6px;
+  margin:4px 0;
+}
+
+ul { list-style:none; padding:0; }
+
+/* Kategorienfarben */
+.drinks button { background:#3498db; }
+.coffee button { background:#a97142; }
+.grill button { background:#e74c3c; }
+.bakery button { background:#f1c40f; color:#000; }
+.sweets button { background:#9b59b6; }
+/* ===== KATEGORIE-HINTERGRÜNDE ===== */
+.category.drinks {
+  background: #d6ecff;   /* hellblau */
+}
+
+.category.coffee {
+  background: #f5e0c3;   /* kaffeebraun */
+}
+
+.category.grill {
+  background: #ffd6d6;   /* hellrot */
+}
+
+.category.bakery {
+  background: #fff2cc;   /* gelb */
+}
+
+.category.sweets {
+  background: #f0d6ff;   /* lila */
+}
+
+.section.admin {
+  background: #e0e0e0;   /* grau */
+}
+
+/* Warenkorb */
+.cart-btn { background:#2ecc71; }
+.cart-btn:hover { background:#27ae60; }
+
+/* Ausgaben */
+.expense-section { background:#ffe6e6; border:2px solid #e74c3c; }
+.expense-btn { background:#e74c3c; }
+.expense-btn:hover { background:#c0392b; }
+
+/* Admin */
+.admin button { background:#7f8c8d; }
+.admin button:hover { background:#636e72; }
+
+</style>
+</head>
+
+<body>
+
+<h1>Kiosk App</h1>
+
+<!-- ================= WARENKORB ================= -->
+<div class="section">
+<h2>Warenkorb</h2>
+<ul id="cart"></ul>
+<p><b>Gesamt:</b> <span id="cartTotal">0.00</span> €</p>
+<button class="cart-btn" onclick="checkout()">Einkauf abschließen</button>
+</div>
+
+<!-- ================= PRODUKTE ================= -->
+<div class="section">
+<h2>Produkte</h2>
+
+<div class="category drinks" id="cat-drinks">
+<h3>Getränke</h3>
+<button onclick="addToCart('Wasser',1)">Wasser 1,00 €</button>
+<button onclick="addToCart('Cola',2)">Cola 2,00 €</button>
+</div>
+
+<div class="category coffee" id="cat-coffee">
+<h3>Kaffee & Kuchen</h3>
+<button onclick="addToCart('Kaffee',2.5)">Kaffee 2,50 €</button>
+<button onclick="addToCart('Kuchen',3)">Kuchen 3,00 €</button>
+</div>
+
+<div class="category grill" id="cat-grill">
+<h3>Grillgut</h3>
+<button onclick="addToCart('Würstel',2.5)">Würstel 2,50 €</button>
+<button onclick="addToCart('Steak',5)">Steak 5,00 €</button>
+</div>
+
+<div class="category bakery" id="cat-bakery">
+<h3>Backwaren</h3>
+<button onclick="addToCart('Breze',1.5)">Breze 1,50 €</button>
+<button onclick="addToCart('Wurstsemmel',3)">Wurstsemmel 3,00 €</button>
+</div>
+
+<div class="category sweets" id="cat-sweets">
+<h3>Süßigkeiten</h3>
+<button onclick="addToCart('Schokolade',1.2)">Schokolade 1,20 €</button>
+<button onclick="addToCart('Gummibärchen',1)">Gummibärchen 1,00 €</button>
+</div>
+</div>
+
+<!-- ================= PRODUKT HINZUFÜGEN ================= -->
+<div class="section admin">
+<h2>Produkt hinzufügen</h2>
+
+<input id="pName" placeholder="Produktname">
+<input id="pPrice" type="number" step="0.01" placeholder="Preis €">
+
+<select id="pCategory">
+<option value="">Kategorie wählen</option>
+<option value="drinks">Getränke</option>
+<option value="coffee">Kaffee & Kuchen</option>
+<option value="grill">Grillgut</option>
+<option value="bakery">Backwaren</option>
+<option value="sweets">Süßigkeiten</option>
+</select>
+
+<button onclick="addNewProduct()">Produkt speichern</button>
+</div>
+
+<!-- ================= AUSGABEN ================= -->
+<div class="section expense-section">
+<h2>Ausgaben</h2>
+<input id="expText" placeholder="Wofür war die Ausgabe?">
+<input id="expPrice" type="number" step="0.01" placeholder="Betrag €">
+<button class="expense-btn" onclick="addExpense()">Ausgabe hinzufügen</button>
+</div>
+
+<!-- ================= TAGESABSCHLUSS ================= -->
+<div class="section">
+<h2>Tageseinnahmen</h2>
+<p>Einnahmen: <b><span id="rev">0.00</span> €</b></p>
+<p>Ausgaben: <b><span id="exp">0.00</span> €</b></p>
+<p>Gewinn: <b><span id="gain">0.00</span> €</b></p>
+
+<button onclick="exportCSV()">CSV Tagesabschluss</button>
+</div>
+
+<script>
+/* ===== STATE ===== */
+let cart = [];
+let revenue = 0;
+let expenses = 0;
+
+
+let salesLog = [];     // ← NEU: alle Einnahmen einzeln
+let expenseList = []; // ← Ausgaben einzeln
+
+/* ===== WARENKORB ===== */
+function addToCart(name, price) {
+  cart.push({ name, price });
+  renderCart();
+}
+
+function renderCart() {
+  const ul = document.getElementById("cart");
+  ul.innerHTML = "";
+  let sum = 0;
+
+  cart.forEach(i => {
+    sum += i.price;
+    const li = document.createElement("li");
+    li.textContent = `${i.name} – ${i.price.toFixed(2)} €`;
+    ul.appendChild(li);
+  });
+
+  document.getElementById("cartTotal").textContent = sum.toFixed(2);
+}
+
+/* ===== CHECKOUT ===== */
+function checkout() {
+  if (cart.length === 0) return;
+  const sum = cart.reduce((s,i)=>s+i.price,0);
+  revenue += sum;
+  cart = [];
+  renderCart();
+  updateTotals();
+}
+
+/* ===== AUSGABEN ===== */
+function addExpense() {
+  const text = document.getElementById("expText").value.trim();
+  const price = Number(document.getElementById("expPrice").value);
+
+  if (!text || price <= 0 || isNaN(price)) {
+    alert("Bitte Beschreibung und Betrag eingeben");
+    return;
+  }
+
+  expenseList.push({
+    time: new Date().toLocaleString(),
+    name: text,
+    price: price,
+    type: "Ausgabe"
+  });
+
+  document.getElementById("expText").value = "";
+  document.getElementById("expPrice").value = "";
+
+  updateTotals();
+}
+
+
+/* ===== TOTALS ===== */
+function updateTotals() {
+  // Einnahmen (bereits beim Checkout addiert)
+  const totalRevenue = revenue;
+
+  // Ausgaben aus der Liste berechnen
+  const totalExpenses = expenseList.reduce(
+    (sum, item) => sum + Number(item.price),
+    0
+  );
+
+  // Anzeige aktualisieren
+  document.getElementById("rev").textContent =
+    totalRevenue.toFixed(2);
+
+  document.getElementById("exp").textContent =
+    totalExpenses.toFixed(2);
+
+  document.getElementById("gain").textContent =
+    (totalRevenue - totalExpenses).toFixed(2);
+}
+
+
+/* ===== PRODUKT HINZUFÜGEN ===== */
+function addNewProduct() {
+  const name = pName.value.trim();
+  const price = Number(pPrice.value);
+  const cat = pCategory.value;
+
+  if (!name || price <= 0 || !cat) {
+    alert("Alle Felder ausfüllen");
+    return;
+  }
+
+  const container = document.getElementById("cat-" + cat);
+
+  const wrapper = document.createElement("div");
+  wrapper.style.display = "flex";
+  wrapper.style.gap = "5px";
+
+  const btn = document.createElement("button");
+  btn.textContent = `${name} ${price.toFixed(2)} €`;
+  btn.style.flex = "1";
+  btn.onclick = () => addToCart(name, price);
+
+  // 👉 KATEGORIE-FARBE ÜBER CSS
+  btn.classList.add(cat);
+
+  const del = document.createElement("button");
+  del.textContent = "❌";
+  del.style.width = "40px";
+  del.style.background = "#e74c3c";
+
+  del.onclick = () => {
+    if (!confirm(`Produkt "${name}" wirklich löschen?`)) return;
+    wrapper.remove();
+  };
+
+  wrapper.appendChild(btn);
+  wrapper.appendChild(del);
+  container.appendChild(wrapper);
+
+  pName.value = "";
+  pPrice.value = "";
+  pCategory.value = "";
+}
+
+
+/* ===== CSV ===== */
+function exportCSV() {
+  const rows = [];
+  rows.push("Datum/Uhrzeit;Typ;Bezeichnung;Betrag");
+
+  // Einnahmen
+  salesLog.forEach(e => {
+    rows.push(
+      `"${e.time}";"${e.type}";"${e.name}";"${e.price.toFixed(2).replace(".", ",")}"`
+    );
+  });
+
+  // Ausgaben
+  expenseList.forEach(e => {
+    rows.push(
+      `"${e.time}";"${e.type}";"${e.name}";"${e.price.toFixed(2).replace(".", ",")}"`
+    );
+  });
+
+  // Summen
+  rows.push("");
+  rows.push(`"";"Summe Einnahmen";"";"${revenue.toFixed(2).replace(".", ",")}"`);
+  rows.push(`"";"Summe Ausgaben";"";"${expenses.toFixed(2).replace(".", ",")}"`);
+  rows.push(`"";"Gewinn";"";"${(revenue - expenses).toFixed(2).replace(".", ",")}"`);
+
+  const blob = new Blob(
+    ["\uFEFF" + rows.join("\n")],
+    { type: "text/csv;charset=utf-8;" }
+  );
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "kiosk_auswertung.csv";
+  a.click();
+}
+
+</script>
+
+</body>
+</html>
